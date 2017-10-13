@@ -264,7 +264,7 @@ public class Main {
 	
 	public static void render(){
 		StateManager.useShader(ShaderManager.defaultShader);
-		glClearColor(0.75f, 0.75f, 0.75f,1);
+		glClearColor(0.0f, 0.0f, 0.0f,1);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		
@@ -283,7 +283,7 @@ public class Main {
 		StateManager.getShader().uniform3f("playerPos", player.getIX(), player.getIY(), player.getIZ());
 		
 		StateManager.getShader().uniform1f("fogDist", drawDist);
-		StateManager.getShader().uniform4f("fogColor", 0.75f, 0.75f, 0.75f, 1.0f);
+		StateManager.getShader().uniform4f("fogColor", 0.0f, 0.0f, 0.0f, 1.0f);
 		
 		List<Light> lights = new ArrayList<Light>();
 		
