@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
+import elukit.client.StateManager;
 import elukit.client.texture.TextureManager;
 import elukit.common.util.ArrayRenderer;
 
@@ -24,7 +25,7 @@ public class ParticleSystem {
 	public void render(){
 		ArrayRenderer buf = ArrayRenderer.instance;
 		
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, TextureManager.get("particle"));
+		StateManager.bindTexture(TextureManager.texParticle);
 		
 		GL11.glDepthMask(false);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

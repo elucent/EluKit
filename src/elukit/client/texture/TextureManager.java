@@ -12,21 +12,28 @@ import java.util.Map;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL20;
 
 import de.matthiasmann.twl.utils.PNGDecoder;
 import de.matthiasmann.twl.utils.PNGDecoder.Format;
+import elukit.client.shader.ShaderManager;
 
-public class TextureManager {
-	public static Map<String, Integer> textures = new HashMap<String, Integer>();
+public class TextureManager {	
+	public static Map<String, Texture> textures = new HashMap<String, Texture>();
+	
+	public static Texture texTile, texFont, texPlayer, texParticle, texEntity;
+	
+	public static Texture currentTexture = null;
 	
 	public static void init(){
-		textures.put("tile", loadTexture("assets/textures/tile.png"));
-		textures.put("font", loadTexture("assets/textures/font.png"));
-		textures.put("player", loadTexture("assets/textures/player.png"));
-		textures.put("particle", loadTexture("assets/textures/particle.png"));
+		textures.put("tile", texTile = loadTexture("assets/textures/tile.png"));
+		textures.put("font", texFont = loadTexture("assets/textures/font.png"));
+		textures.put("player", texPlayer = loadTexture("assets/textures/player.png"));
+		textures.put("particle", texParticle = loadTexture("assets/textures/particle.png"));
+		textures.put("entity", texEntity = loadTexture("assets/textures/entity.png"));
 	}
 	
-	public static int loadTexture(String path){
+	public static Texture loadTexture(String path){
 		ByteBuffer buf = null;
 		int tWidth = 0;
 		int tHeight = 0;
@@ -60,10 +67,18 @@ public class TextureManager {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tWidth, tHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
 		glBindTexture(GL_TEXTURE_2D,0);
 		
-		return textureId;
+		return new Texture(tWidth,tHeight,textureId);
 	}
 	
-	public static int get(String string){
+	public static int getCurrentWidth(){
+		return currentTexture == null ? 0 : currentTexture.width;
+	}
+	
+	public static int getCurrentHeight(){
+		return currentTexture == null ? 0 : currentTexture.height;
+	}
+	
+	public static Texture get(String string){
 		return textures.get(string);
 	}
 }

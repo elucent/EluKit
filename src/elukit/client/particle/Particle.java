@@ -69,7 +69,7 @@ public class Particle {
 	}
 	
 	public float getLifeCoeff(){
-		return (life-Main.partialTicks)/maxlife;
+		return (life-Main.tickTime*Main.partialTicks)/maxlife;
 	}
 	
 	public float getIX(){
@@ -86,7 +86,7 @@ public class Particle {
 	
 	public void render(ArrayRenderer buf){
 		if (MathUtil.distSq(x, y, z, Main.player.x, Main.player.y, Main.player.z) < Main.drawDist*Main.drawDist){
-			ARShapes.renderCenteredBillboard(buf, getIX(), getIY(), getIZ(), scale*getLifeCoeff(), scale*getLifeCoeff(), r, g, b, a*getLifeCoeff(), u, v, u+32f/1024f, v+32f/1024f);
+			ARShapes.renderCenteredBillboard(buf, getIX(), getIY(), getIZ(), scale*getLifeCoeff(), scale*getLifeCoeff(), r, g, b, a*getLifeCoeff(), u, v, u+32f, v+32f);
 		}
 	}
 }

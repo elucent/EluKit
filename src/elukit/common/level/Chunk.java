@@ -23,6 +23,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 
 import elukit.client.Main;
+import elukit.client.StateManager;
 import elukit.client.lighting.ILightProvider;
 import elukit.client.lighting.Light;
 import elukit.client.shader.ShaderManager;
@@ -328,7 +329,7 @@ public class Chunk {
 	}
 	
 	public void renderLevel(){
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D,TextureManager.textures.get("tile"));
+		StateManager.bindTexture(TextureManager.texTile);
 		
 		GL11.glColor4f(1f, 1f, 1f, 1f);
 		render.render();
@@ -337,7 +338,7 @@ public class Chunk {
 	}
 	
 	public void renderUnbaked(){
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D,TextureManager.textures.get("tile"));
+		StateManager.bindTexture(TextureManager.texTile);
 		
 		ArrayRenderer buf = ArrayRenderer.instance;
 		buf.start(GL11.GL_QUADS, false);

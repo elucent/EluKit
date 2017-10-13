@@ -21,8 +21,8 @@ public class ElementPlinth extends Element implements ILitElement, ITickableElem
 	float u = 0, v = 0;
 	public ElementPlinth(int id, float u, float v){
 		super(id);
-		this.u = u/1024f;
-		this.v = v/1024f;
+		this.u = u;
+		this.v = v;
 	}
 	
 	@Override
@@ -38,12 +38,12 @@ public class ElementPlinth extends Element implements ILitElement, ITickableElem
 				pos.x, pos.y, pos.z+1, 
 				1f, 1f, 1f, 1f, 
 				new Vec4f[]{
-						new Vec4f(64f/1024f,0f,72f/1024f,8f/1024f),
-						new Vec4f(48f/1024f,0f,64f/1024f,16f/1024f),
-						new Vec4f(32f/1024f,0f,48f/1024f,10f/1024f),
-						new Vec4f(32f/1024f,0f,48f/1024f,10f/1024f),
-						new Vec4f(32f/1024f,0f,48f/1024f,10f/1024f),
-						new Vec4f(32f/1024f,0f,48f/1024f,10f/1024f)
+						new Vec4f(32f,0f,16f,10f),
+						new Vec4f(32f,0f,16f,10f),
+						new Vec4f(48f,0f,16f,16f),
+						new Vec4f(64f,0f,8f,8f),
+						new Vec4f(32f,0f,16f,10f),
+						new Vec4f(32f,0f,16f,10f)
 				});
 	}
 
@@ -54,7 +54,7 @@ public class ElementPlinth extends Element implements ILitElement, ITickableElem
 
 	@Override
 	public void render(float x, float y, float z){
-		//Primitives.renderBox(x, y, z, x+1f, y+1f, z+1f, u, v, u+16f/1024f, v+16f/1024f);
+		//Primitives.renderBox(x, y, z, x+1f, y+1f, z+1f, u, v, u+16f, v+16f);
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class ElementPlinth extends Element implements ILitElement, ITickableElem
 		int z = level.getAbsoluteZ()+pos.z;
 		Random rand = NoiseGenUtil.getRandom(Main.seed, x, y, z);
 		Color c = Color.getHSBColor(rand.nextFloat(), 0.8f, 1.0f);
-		level.world.particleSystem.addParticle(new Particle(x+0.5f,y+1.0f,z+0.5f,0f,0f,0.8f)
+		level.world.particleSystem.addParticle(new Particle(x+0.5f,y+1.0f,z+0.5f,0f,0f,0.6f)
 				.setAdditive(true)
 				.setColor(c.getRed()/255f,c.getGreen()/255f,c.getBlue()/255f,0.45f)
 				.setMotion(0.5f*(NoiseGenUtil.random.nextFloat()-0.5f), 2.75f*(NoiseGenUtil.random.nextFloat()), 0.5f*(NoiseGenUtil.random.nextFloat()-0.5f)));

@@ -28,6 +28,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 
 import elukit.client.Main;
+import elukit.client.StateManager;
 import elukit.client.lighting.ILightProvider;
 import elukit.client.lighting.Light;
 import elukit.client.particle.ParticleSystem;
@@ -37,6 +38,7 @@ import elukit.common.collider.ICollider;
 import elukit.common.element.ILitElement;
 import elukit.common.element.ITickableElement;
 import elukit.common.entity.Entity;
+import elukit.common.entity.ICollidableEntity;
 import elukit.common.struct.Vec2i;
 import elukit.common.struct.Vec3f;
 import elukit.common.struct.Vec3i;
@@ -114,6 +116,11 @@ public class World {
 				}
 			}
 		}
+		for (Entity e : entities.values()){
+			if (e instanceof ICollidableEntity){
+				((ICollidableEntity)e).addCollider(this, list);
+			}
+		}
 	}
 	
 	public void deleteChunk(Vec2i v){
@@ -141,15 +148,12 @@ public class World {
 	}
 	
 	public void renderLevel(){
-		int enableLighting = GL20.glGetUniformLocation(ShaderManager.defaultProgram, "enableLighting");
-		GL20.glUniform1i(enableLighting, 1);
-		int enableVertexOffset = GL20.glGetUniformLocation(ShaderManager.defaultProgram, "enableVertexOffset");
-		GL20.glUniform1i(enableVertexOffset, 1);
-		int light = GL20.glGetUniformLocation(ShaderManager.defaultProgram, "light");
-		GL20.glUniform3f(light, this.light.x, this.light.y, this.light.z);
-
-		GL20.glUseProgram(ShaderManager.defaultProgram);
-		int translation = GL20.glGetUniformLocation(ShaderManager.defaultProgram, "translation");
+		StateManager.useShader(ShaderManager.defaultShader);
+		
+		StateManager.getShader().uniform1i("enableLighting", 1);
+		StateManager.getShader().uniform1i("enableVertexOffset", 1);
+		StateManager.getShader().uniform3f("light", this.light.x, this.light.y, this.light.z);
+		StateManager.getShader().uniform1f("ambient", 0.15f);
 		float time = 0f;
 		for (Entry<Vec2i, Chunk> e : chunks.entrySet()){
 			if (!e.getValue().render.getBaked() && time < 0.0025f){
@@ -157,24 +161,21 @@ public class World {
 				e.getValue().bake();
 				time += (System.nanoTime()-l)/1000000000f;
 			}
-			GL20.glUniform3f(translation, e.getKey().x*Chunk.DIM, 0, e.getKey().y*Chunk.DIM);
+			StateManager.getShader().uniform3f("translation", e.getKey().x*Chunk.DIM, 0, e.getKey().y*Chunk.DIM);
 			e.getValue().renderLevel();
 		}
 		
-		GL20.glUniform3f(translation, 0, 0, 0);
-		GL20.glUniform1i(enableVertexOffset, 0);
+		StateManager.getShader().uniform3f("translation", 0, 0, 0);
+		StateManager.getShader().uniform1i("enableVertexOffset", 0);
 		for (Entry<Vec2i, Chunk> e : chunks.entrySet()){
 			e.getValue().renderUnbaked();
 		}
 	}
 	
 	public void renderEntities(){
-		int enableLighting = GL20.glGetUniformLocation(ShaderManager.defaultProgram, "enableLighting");
-		GL20.glUniform1i(enableLighting, 1);
-		int enableVertexOffset = GL20.glGetUniformLocation(ShaderManager.defaultProgram, "enableVertexOffset");
-		GL20.glUniform1i(enableVertexOffset, 0);
-		int light = GL20.glGetUniformLocation(ShaderManager.defaultProgram, "light");
-		GL20.glUniform3f(light, this.light.x, this.light.y, this.light.z);
+		StateManager.getShader().uniform1i("enableLighting", 1);
+		StateManager.getShader().uniform1i("enableVertexOffset", 0);
+		StateManager.getShader().uniform3f("light", this.light.x, this.light.y, this.light.z);
 		for (Entity e : entities.values()){
 			e.render();
 		}

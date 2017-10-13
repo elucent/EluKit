@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
+import elukit.client.StateManager;
 import elukit.client.texture.TextureManager;
 
 public class RenderUtil {
@@ -25,7 +26,7 @@ public class RenderUtil {
 	}
 	
 	public static void drawString(float x, float y, String text){
-		glBindTexture(GL_TEXTURE_2D,TextureManager.get("font"));
+		StateManager.bindTexture(TextureManager.texFont);
 		glDepthMask(false);
 		glBegin(GL_QUADS);
 		byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
@@ -44,7 +45,7 @@ public class RenderUtil {
 	}
 	
 	public static void drawStringScaled(float x, float y, float scale, String text){
-		glBindTexture(GL_TEXTURE_2D,TextureManager.get("font"));
+		StateManager.bindTexture(TextureManager.texFont);
 		glDepthMask(false);
 		glBegin(GL_QUADS);
 		byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
@@ -63,7 +64,7 @@ public class RenderUtil {
 	}
 	
 	public static void drawString3D(float x, float y, float z, String text){
-		glBindTexture(GL_TEXTURE_2D,TextureManager.get("font"));
+		StateManager.bindTexture(TextureManager.texFont);
 		glDepthMask(false);
 		glBegin(GL_QUADS);
 		byte[] bytes = text.getBytes(StandardCharsets.UTF_8);

@@ -241,10 +241,10 @@ public class ARShapes {
 		}
 		
 		if (negZ){
-			buf.norm(0,0,-1);
-			buf.norm(0,0,-1);
-			buf.norm(0,0,-1);
-			buf.norm(0,0,-1);
+			buf.norm(0,0,1);
+			buf.norm(0,0,1);
+			buf.norm(0,0,1);
+			buf.norm(0,0,1);
 			buf.vert(x1,y1,z1); 
 			buf.vert(x2,y1,z1);
 			buf.vert(x2,y2,z1);
@@ -252,10 +252,10 @@ public class ARShapes {
 		}
 		
 		if (negX){
-			buf.norm(-1,0,0);
-			buf.norm(-1,0,0);
-			buf.norm(-1,0,0);
-			buf.norm(-1,0,0);
+			buf.norm(1,0,0);
+			buf.norm(1,0,0);
+			buf.norm(1,0,0);
+			buf.norm(1,0,0);
 			buf.vert(x1,y1,z2);
 			buf.vert(x1,y1,z1);
 			buf.vert(x1,y2,z1);
@@ -274,10 +274,10 @@ public class ARShapes {
 		}
 		
 		if (posZ){
-			buf.norm(0,0,1);
-			buf.norm(0,0,1);
-			buf.norm(0,0,1);
-			buf.norm(0,0,1);
+			buf.norm(0,0,-1);
+			buf.norm(0,0,-1);
+			buf.norm(0,0,-1);
+			buf.norm(0,0,-1);
 			buf.vert(x2,y1,z2); 
 			buf.vert(x1,y1,z2); 
 			buf.vert(x1,y2,z2); 
@@ -285,10 +285,10 @@ public class ARShapes {
 		}
 		
 		if (posX){
-			buf.norm(1,0,0);
-			buf.norm(1,0,0);
-			buf.norm(1,0,0);
-			buf.norm(1,0,0);
+			buf.norm(-1,0,0);
+			buf.norm(-1,0,0);
+			buf.norm(-1,0,0);
+			buf.norm(-1,0,0);
 			buf.vert(x2,y1,z1); 
 			buf.vert(x2,y1,z2); 
 			buf.vert(x2,y2,z2); 
@@ -534,6 +534,25 @@ public class ARShapes {
 		texForPos(buf,x5,y5,z5,textures[3],EnumFace.SOUTH);
 	}
 	
+	public static void addTexturedBox(ArrayRenderer buf,
+										float x, float y, float z,
+										float w, float h, float l,
+										float r, float g, float b, float a,
+										Vec4f[] textures){
+		addSegment(buf,
+				x,y+h,z,
+				x+w,y+h,z,
+				x+w,y+h,z+l,
+				x,y+h,z+l,
+				x,y,z,
+				x+w,y,z,
+				x+w,y,z+l,
+				x,y,z+l,
+				r,g,b,a,
+				textures
+				);
+	}
+	
 	public static void addSegment(ArrayRenderer buf, 
 									float x1, float y1, float z1,
 									float x2, float y2, float z2,
@@ -548,42 +567,24 @@ public class ARShapes {
 		//1 -> 2 -> 3 -> 4
 		//nxnz -> pxnz -> pxpz -> nxpz
 		
-		//texorder: up, down, north, south, east, west
+		//texorder: nx, px, ny, py, nz, pz
 		int faceCount = 6;
 		for (int i = 0; i < 4*faceCount; i ++){
 			buf.col(r,g,b,a);
 		}
 		for (int i = 0; i < faceCount; i ++){
 			buf.tex(textures[i].x,textures[i].y);
-			buf.tex(textures[i].z,textures[i].y);
-			buf.tex(textures[i].z,textures[i].w);
-			buf.tex(textures[i].x,textures[i].w);
+			buf.tex(textures[i].x+textures[i].z,textures[i].y);
+			buf.tex(textures[i].x+textures[i].z,textures[i].y+textures[i].w);
+			buf.tex(textures[i].x,textures[i].y+textures[i].w);
 		}
 		
 		Vec3f down = Primitives.getNormal(x1,y1,z1,x2,y2,z2,x3,y3,z3).scale(-1f);
 		Vec3f up = Primitives.getNormal(x5,y5,z5,x6,y6,z6,x7,y7,z7);
 		Vec3f west = Primitives.getNormal(x1,y1,z1,x8,y8,z8,x5,y5,z5);
 		Vec3f east = Primitives.getNormal(x3,y3,z3,x6,y6,z6,x7,y7,z7);
-		Vec3f south = Primitives.getNormal(x4,y4,z4,x7,y7,z7,x8,y8,z8);
-		Vec3f north = Primitives.getNormal(x1,y1,z1,x5,y5,z5,x6,y6,z6);
-		
-		buf.norm(up.x,up.y,up.z);
-		buf.vert(x1,y1,z1);
-		buf.norm(up.x,up.y,up.z);
-		buf.vert(x2,y2,z2);
-		buf.norm(up.x,up.y,up.z);
-		buf.vert(x3,y3,z3);
-		buf.norm(up.x,up.y,up.z);
-		buf.vert(x4,y4,z4);
-		
-		buf.norm(down.x,down.y,down.z);
-		buf.vert(x5,y5,z5);
-		buf.norm(down.x,down.y,down.z);
-		buf.vert(x6,y6,z6);
-		buf.norm(down.x,down.y,down.z);
-		buf.vert(x7,y7,z7);
-		buf.norm(down.x,down.y,down.z);
-		buf.vert(x8,y8,z8);
+		Vec3f south = Primitives.getNormal(x4,y4,z4,x7,y7,z7,x8,y8,z8).scale(-1f);
+		Vec3f north = Primitives.getNormal(x1,y1,z1,x5,y5,z5,x6,y6,z6).scale(-1f);
 		
 		buf.norm(west.x,west.y,west.z);
 		buf.vert(x1,y1,z1);
@@ -602,6 +603,24 @@ public class ARShapes {
 		buf.vert(x7,y7,z7);
 		buf.norm(east.x,east.y,east.z);
 		buf.vert(x6,y6,z6);
+		
+		buf.norm(down.x,down.y,down.z);
+		buf.vert(x5,y5,z5);
+		buf.norm(down.x,down.y,down.z);
+		buf.vert(x6,y6,z6);
+		buf.norm(down.x,down.y,down.z);
+		buf.vert(x7,y7,z7);
+		buf.norm(down.x,down.y,down.z);
+		buf.vert(x8,y8,z8);
+		
+		buf.norm(up.x,up.y,up.z);
+		buf.vert(x1,y1,z1);
+		buf.norm(up.x,up.y,up.z);
+		buf.vert(x2,y2,z2);
+		buf.norm(up.x,up.y,up.z);
+		buf.vert(x3,y3,z3);
+		buf.norm(up.x,up.y,up.z);
+		buf.vert(x4,y4,z4);
 		
 		buf.norm(north.x,north.y,north.z);
 		buf.vert(x3,y3,z3);

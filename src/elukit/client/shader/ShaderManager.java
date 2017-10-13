@@ -9,16 +9,17 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 public class ShaderManager {
-	public static int defaultProgram = 0;
+	public static Shader defaultShader = null;
 	
 	public static void init(){
 		int vertexShader = createShader("assets/shaders/default.vs",GL20.GL_VERTEX_SHADER);
 		int fragmentShader = createShader("assets/shaders/default.fs",GL20.GL_FRAGMENT_SHADER);
-		defaultProgram = GL20.glCreateProgram();
-		GL20.glAttachShader(defaultProgram, vertexShader);
-		GL20.glAttachShader(defaultProgram, fragmentShader);
-		GL20.glLinkProgram(defaultProgram);
-		GL20.glUseProgram(defaultProgram);
+		int def = GL20.glCreateProgram();
+		GL20.glAttachShader(def, vertexShader);
+		GL20.glAttachShader(def, fragmentShader);
+		GL20.glLinkProgram(def);
+		GL20.glUseProgram(def);
+		defaultShader = new Shader(def);
 	}
 	
 	public static int createShader(String filename, int shaderType) {

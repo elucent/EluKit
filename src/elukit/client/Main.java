@@ -42,6 +42,7 @@ import elukit.client.lighting.Light;
 import elukit.client.shader.ShaderManager;
 import elukit.client.texture.TextureManager;
 import elukit.common.element.ElementRegistry;
+import elukit.common.entity.EntityMovingCube;
 import elukit.common.entity.EntityPlayer;
 import elukit.common.level.Chunk;
 import elukit.common.level.World;
@@ -51,7 +52,9 @@ import elukit.common.network.packet.CPacketConnectRequest;
 import elukit.common.network.packet.CPacketDisconnectRequest;
 import elukit.common.network.packet.Packet;
 import elukit.common.struct.Vec2i;
+import elukit.common.struct.Vec3i;
 import elukit.common.util.DataHelper;
+import elukit.common.util.NoiseGenUtil;
 import elukit.common.util.Primitives;
 import sun.misc.Queue;
 
@@ -93,6 +96,8 @@ public class Main {
     public static GLCapabilities capabilities = null;
     
     public static float drawDist = 64f;
+    
+    public static float tickTime = 1f/100f;
 	
 	public static void main(String[] args){
 		GLFWErrorCallback.createPrint(System.err).set();
@@ -137,6 +142,11 @@ public class Main {
 		for (int i = -2; i < 3; i ++){
 			for (int j = -2; j < 3; j ++){
 				world.genChunk(i, j);
+				
+				world.addEntity(new EntityMovingCube(
+						new Vec3i(NoiseGenUtil.random.nextInt(16)-8,NoiseGenUtil.random.nextInt(8),NoiseGenUtil.random.nextInt(16)-8).add(i*Chunk.DIM, 6, j*Chunk.DIM), 
+						new Vec3i(NoiseGenUtil.random.nextInt(16)-8,NoiseGenUtil.random.nextInt(8),NoiseGenUtil.random.nextInt(16)-8).add(i*Chunk.DIM, 6, j*Chunk.DIM), 
+						4f));
 			}
 		}
 		world.addEntity(player);
@@ -177,8 +187,8 @@ public class Main {
 		while (!glfwWindowShouldClose(window)){
 			gameRenderer.start();
 			time = glfwGetTime();
-			partialTicks = (float)(time-lastTime);
-			if (time-lastTime >= 1.0f/100.0f){
+			partialTicks = (float)(time-lastTime)/tickTime;
+			if (time-lastTime >= tickTime){
 				int[] w = new int[]{WIDTH};
 				int[] h = new int[]{HEIGHT};
 				glfwGetWindowSize(window,w,h);
@@ -192,7 +202,6 @@ public class Main {
 					mainLoop();
 				}
 				ticks ++;
-				System.out.println(GameRenderer.fps);
 			}
 			lastFrameTime = time;
 		}
@@ -254,8 +263,8 @@ public class Main {
 	}
 	
 	public static void render(){
-		GL20.glUseProgram(ShaderManager.defaultProgram);
-		glClearColor(0,0,0,1);
+		StateManager.useShader(ShaderManager.defaultShader);
+		glClearColor(0.75f, 0.75f, 0.75f,1);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		
@@ -271,11 +280,10 @@ public class Main {
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
-		int playerPos = GL20.glGetUniformLocation(ShaderManager.defaultProgram, "playerPos");
-		GL20.glUniform3f(playerPos, player.x, player.y, player.z);
+		StateManager.getShader().uniform3f("playerPos", player.getIX(), player.getIY(), player.getIZ());
 		
-		int fog = GL20.glGetUniformLocation(ShaderManager.defaultProgram, "fogDist");
-		GL20.glUniform1f(fog, drawDist);
+		StateManager.getShader().uniform1f("fogDist", drawDist);
+		StateManager.getShader().uniform4f("fogColor", 0.75f, 0.75f, 0.75f, 1.0f);
 		
 		List<Light> lights = new ArrayList<Light>();
 		
@@ -289,26 +297,21 @@ public class Main {
 				Light l = lights.get(i);
 				float coeff = 1f-((float)Math.pow(l.x-player.x,2f)+(float)Math.pow(l.y-player.y,2f)+(float)Math.pow(l.z-player.z,2f))/(drawDist*drawDist);
 				if (coeff > 0){
-					int pos = GL20.glGetUniformLocation(ShaderManager.defaultProgram, "lights["+lcount+"].position");
-					GL20.glUniform3f(pos, l.x, l.y, l.z);
-					int color = GL20.glGetUniformLocation(ShaderManager.defaultProgram, "lights["+lcount+"].color");
-					GL20.glUniform4f(color, l.r, l.g, l.b, l.a*coeff);
-					int radius = GL20.glGetUniformLocation(ShaderManager.defaultProgram, "lights["+lcount+"].radius");
-					GL20.glUniform1f(radius, l.rad*coeff);
+					StateManager.getShader().uniform3f("lights["+lcount+"].position", l.x, l.y, l.z);
+					StateManager.getShader().uniform4f("lights["+lcount+"].color", l.r, l.g, l.b, l.a*coeff);
+					StateManager.getShader().uniform1f("lights["+lcount+"].radius", l.rad*coeff);
 					lcount ++;
 				}
 			}
 		}
-		int max = GL20.glGetUniformLocation(ShaderManager.defaultProgram, "lightCount");
-		GL20.glUniform1i(max, lcount);
+		StateManager.getShader().uniform1i("lightCount", lcount);
 		
 		float zBack = 0f;
 		glTranslatef(0,0,-zBack);
 		glRotatef(player.cameraPitch,1,0,0);
 		glRotatef(player.cameraYaw,0,1,0);
-		glTranslatef(-player.x,-(player.y+player.eyeHeight),-player.z);
+		glTranslatef(-player.getIX(),-(player.getIY()+player.eyeHeight),-player.getIZ());
 
-		int translation = GL20.glGetUniformLocation(ShaderManager.defaultProgram, "translation");
 		world.renderLevel();
 		/*for (Vec2i k : levels.keySet()){
 			Chunk l = levels.get(k);
@@ -320,7 +323,6 @@ public class Main {
 			l.renderLevel();
 			glPopMatrix();
 		}*/
-		GL20.glUniform3f(translation, 0, 0, 0);
 		world.renderEntities();
 		
 		glMatrixMode(GL_PROJECTION);

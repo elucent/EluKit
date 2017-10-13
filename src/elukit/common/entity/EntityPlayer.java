@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import elukit.client.Main;
+import elukit.client.StateManager;
 import elukit.client.lighting.ILightProvider;
 import elukit.client.lighting.Light;
 import elukit.client.particle.Particle;
@@ -128,7 +129,7 @@ public class EntityPlayer extends Entity implements ILightProvider {
 		}
 		motionY -= Main.deltaTime*20f;
 		if (Main.tappedKeys.contains(GLFW_KEY_SPACE)/* && grounded*/){
-			motionY = 8f;
+			motionY = 10f;
 		}
 		if (!Main.heldKeys.contains(GLFW_KEY_SPACE) && motionY > -2.5f){
 			motionY -= Main.deltaTime*(60f * ((grounded && !collidedDown) ? 2.5f : 0.5f));
@@ -199,13 +200,12 @@ public class EntityPlayer extends Entity implements ILightProvider {
 		buf.bake();
 		buf.render();
 		buf.reset();
-		
-		GL20.glUseProgram(ShaderManager.defaultProgram);
+
+		StateManager.useShader(ShaderManager.defaultShader);
 	}
 
 	@Override
 	public void addLights(List<Light> lights) {
-		lights.add(new Light(x,y+0.75f,z,1f,0.25f,0.0625f,1.5f,8f));
-		lights.add(new Light(x,y+0.75f,z,1f,0.5f,0.125f,4.0f,4f));
+		lights.add(new Light(x,y+0.75f,z,1f,0.25f,0.0625f,1.0f,6f));
 	}
 }

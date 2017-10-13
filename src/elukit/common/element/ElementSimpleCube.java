@@ -14,8 +14,8 @@ public class ElementSimpleCube extends Element {
 	float u = 0, v = 0;
 	public ElementSimpleCube(int id, float u, float v){
 		super(id);
-		this.u = u/1024f;
-		this.v = v/1024f;
+		this.u = u;
+		this.v = v;
 	}
 	
 	@Override
@@ -31,7 +31,7 @@ public class ElementSimpleCube extends Element {
 					!level.elements.containsKey(pos.north()) || level.elements.containsKey(pos.north()) && !level.elements.get(pos.north()).isSolid(), 
 					!level.elements.containsKey(pos.south()) || level.elements.containsKey(pos.south()) && !level.elements.get(pos.south()).isSolid(), 
 					u, v, 
-					u+16f/1024f, v+16f/1024f);
+					u+16f, v+16f);
 	}
 
 	@Override
